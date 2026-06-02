@@ -21,6 +21,8 @@ while True:
 
         dados = api.buscar_jogador(nome)
 
+        print(dados)
+
         if dados["player"] is not None:
 
             jogadores_filtrados = []
@@ -129,17 +131,12 @@ while True:
         else:
             print("Time não encontrado.")
 
-    # =========================
-    # SAIR
-    # =========================
+
     elif opcao == "3":
 
         print("Saindo do sistema...")
         break
 
-    # =========================
-    # OPÇÃO INVÁLIDA
-    # =========================
     else:
 
         print("Opção inválida.")
