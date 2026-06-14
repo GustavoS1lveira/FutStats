@@ -1,20 +1,55 @@
+from dotenv import load_dotenv
 import requests
+import os
+
+load_dotenv()
 
 
 class APIFootball:
 
+    def __init__(self):
+
+        self.api_key = os.getenv("API_FOOTBALL_KEY")
+
+        self.headers = {
+            "x-apisports-key": self.api_key
+        }
+
     def buscar_jogador(self, nome_jogador):
 
-        url = f"https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p={nome_jogador}"
+        url = f"https://v3.football.api-sports.io/players/profiles?search={nome_jogador}"
 
-        response = requests.get(url)
+        response = requests.get(
+            url,
+            headers=self.headers
+        )
 
         return response.json()
 
-    def buscar_time(self, nome_time):
+    def buscar_estatisticas(self, player_id, season=2020):
 
-        url = f"https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t={nome_time}"
+        url = (
+            f"https://v3.football.api-sports.io/players"
+            f"?id={player_id}&season={season}"
+        )
 
-        response = requests.get(url)
+        response = requests.get(
+            url,
+            headers=self.headers
+        )
+
+        return response.json()
+
+    def buscar_temporadas_jogador(self, player_id):
+
+        url = (
+            f"https://v3.football.api-sports.io/players/seasons"
+            f"?player={player_id}"
+        )
+
+        response = requests.get(
+            url,
+            headers=self.headers
+        )
 
         return response.json()

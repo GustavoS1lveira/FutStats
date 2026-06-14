@@ -1,10 +1,75 @@
 from services.api import APIFootball
 from models.player import Jogador
-from models.team import Time
 from utils.menu import mostrar_menu
-
+from services.comparator import Comparador
+from services.stats import Estatisticas
 
 api = APIFootball()
+
+
+def selecionar_jogador(nome_busca):
+
+    dados = api.buscar_jogador(nome_busca)
+
+    if dados["results"] == 0:
+        print("Jogador não encontrado.")
+        return None
+
+    jogadores = dados["response"]
+
+    print("\nJogadores encontrados:\n")
+
+    for i, item in enumerate(jogadores[:5]):
+
+        jogador_api = item["player"]
+
+        nome = jogador_api.get("name", "Desconhecido")
+        posicao = jogador_api.get("position", "Sem posição")
+        idade = jogador_api.get("age", "?")
+        nacionalidade = jogador_api.get("nationality", "N/A")
+
+        print(
+            f"{i + 1} - {nome} | "
+            f"{posicao} | "
+            f"{idade} anos | "
+            f"{nacionalidade}"
+        )
+
+    try:
+
+        escolha = int(input("\nEscolha um jogador: ")) - 1
+
+        if not (0 <= escolha < len(jogadores[:5])):
+            print("Escolha inválida.")
+            return None
+
+        jogador_api = jogadores[escolha]["player"]
+
+        player_id = jogador_api.get("id")
+
+        dados_estatisticas = Estatisticas.calcular(
+            api,
+            player_id
+        )
+
+        return Jogador(
+            nome=jogador_api.get("name", "Desconhecido"),
+            nacionalidade=jogador_api.get("nationality", "Desconhecida"),
+            posicao=jogador_api.get("position", "Sem posição"),
+            idade=jogador_api.get("age"),
+            altura=jogador_api.get("height"),
+            peso=jogador_api.get("weight"),
+            jogos=dados_estatisticas["jogos"],
+            gols=dados_estatisticas["gols"],
+            assistencias=dados_estatisticas["assistencias"],
+            minutos=dados_estatisticas["minutos"],
+            nota_media=dados_estatisticas["nota_media"]
+        )
+
+    except ValueError:
+
+        print("Digite um número válido.")
+        return None
 
 while True:
 
@@ -12,125 +77,32 @@ while True:
 
     opcao = input("Escolha uma opção: ")
 
-    # =========================
-    # BUSCAR JOGADOR
-    # =========================
     if opcao == "1":
 
-        nome = input("Digite o nome do jogador: ")
+        print("\n===== COMPARAR JOGADORES =====")
 
-        dados = api.buscar_jogador(nome)
+        nome1 = input("\nDigite o primeiro jogador: ")
+        jogador1 = selecionar_jogador(nome1)
 
-        print(dados)
+        if jogador1 is None:
+            continue
 
-        if dados["player"] is not None:
+        nome2 = input("\nDigite o segundo jogador: ")
+        jogador2 = selecionar_jogador(nome2)
 
-            jogadores_filtrados = []
+        if jogador2 is None:
+            continue
 
-            # Filtra apenas jogadores de futebol
-            for player in dados["player"]:
+        Comparador.comparar(jogador1, jogador2)
 
-                esporte = player.get("strSport")
-
-                if esporte == "Soccer":
-
-                    jogadores_filtrados.append(player)
-
-            if len(jogadores_filtrados) > 0:
-
-                print("\nJogadores encontrados:\n")
-
-                # Mostra apenas os 5 primeiros
-                for i, player in enumerate(jogadores_filtrados[:5]):
-
-                    nome_jogador = player.get("strPlayer", "Desconhecido")
-                    time_jogador = player.get("strTeam", "Sem time")
-
-                    print(f"{i + 1} - {nome_jogador} ({time_jogador})")
-
-                escolha = int(input("\nEscolha um jogador: ")) - 1
-
-                # Validação simples
-                if 0 <= escolha < len(jogadores_filtrados[:5]):
-
-                    jogador_api = jogadores_filtrados[escolha]
-
-                    jogador = Jogador(
-
-                        jogador_api.get("strPlayer", "Desconhecido"),
-                        jogador_api.get("strNationality", "Desconhecida"),
-                        jogador_api.get("strTeam", "Sem time"),
-                        jogador_api.get("strPosition", "Sem posição")
-
-                    )
-
-                    jogador.mostrar_dados()
-
-                else:
-                    print("Escolha inválida.")
-
-            else:
-                print("Nenhum jogador correspondente encontrado.")
-
-        else:
-            print("Jogador não encontrado.")
-
-    # =========================
-    # BUSCAR TIME
-    # =========================
     elif opcao == "2":
 
-        nome = input("Digite o nome do time: ")
+        nome = input("\nDigite o nome do jogador: ")
 
-        dados = api.buscar_time(nome)
+        jogador = selecionar_jogador(nome)
 
-        if dados["teams"] is not None:
-
-            times_filtrados = []
-
-            for team in dados["teams"]:
-
-                nome_api = team.get("strTeam", "")
-
-                if nome.lower() in nome_api.lower():
-
-                    times_filtrados.append(team)
-
-            if len(times_filtrados) > 0:
-
-                print("\nTimes encontrados:\n")
-
-                # Mostra apenas os 5 primeiros
-                for i, team in enumerate(times_filtrados[:5]):
-
-                    print(f"{i + 1} - {team.get('strTeam', 'Desconhecido')}")
-
-                escolha = int(input("\nEscolha um time: ")) - 1
-
-                # Validação simples
-                if 0 <= escolha < len(times_filtrados[:5]):
-
-                    time_api = times_filtrados[escolha]
-
-                    time = Time(
-
-                        time_api.get("strTeam", "Desconhecido"),
-                        time_api.get("strLeague", "Liga desconhecida"),
-                        time_api.get("strStadium", "Estádio desconhecido")
-
-                    )
-
-                    time.mostrar_dados()
-
-                else:
-                    print("Escolha inválida.")
-
-            else:
-                print("Nenhum time correspondente encontrado.")
-
-        else:
-            print("Time não encontrado.")
-
+        if jogador:
+            jogador.mostrar_dados()
 
     elif opcao == "3":
 

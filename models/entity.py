@@ -1,4 +1,6 @@
 class Entidade:
 
     def mostrar_dados(self):
-        pass
+        raise NotImplementedError(
+            "As subclasses devem implementar mostrar_dados()"
+        )
