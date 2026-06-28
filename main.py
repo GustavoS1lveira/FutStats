@@ -1,114 +1,63 @@
 from services.api import APIFootball
-from models.player import Jogador
 from utils.menu import mostrar_menu
 from services.comparator import Comparador
 from services.stats import Estatisticas
+from services.player_service import ServicoJogador
 
 api = APIFootball()
+estatisticas = Estatisticas(api)
+servico_jogador = ServicoJogador(api, estatisticas)
+comparador = Comparador()
 
 
-def selecionar_jogador(nome_busca):
+def exibir_entidade(entidade):
+    entidade.mostrar_dados()
 
-    dados = api.buscar_jogador(nome_busca)
 
-    if dados["results"] == 0:
-        print("Jogador não encontrado.")
-        return None
+def main():
+    while True:
 
-    jogadores = dados["response"]
+        mostrar_menu()
 
-    print("\nJogadores encontrados:\n")
+        opcao = input("Escolha uma opção: ")
 
-    for i, item in enumerate(jogadores[:5]):
+        if opcao == "1":
 
-        jogador_api = item["player"]
+            print("\n===== COMPARAR JOGADORES =====")
 
-        nome = jogador_api.get("name", "Desconhecido")
-        posicao = jogador_api.get("position", "Sem posição")
-        idade = jogador_api.get("age", "?")
-        nacionalidade = jogador_api.get("nationality", "N/A")
+            nome1 = input("\nDigite o primeiro jogador: ")
+            jogador1 = servico_jogador.selecionar_jogador(nome1)
 
-        print(
-            f"{i + 1} - {nome} | "
-            f"{posicao} | "
-            f"{idade} anos | "
-            f"{nacionalidade}"
-        )
+            if jogador1 is None:
+                continue
 
-    try:
+            nome2 = input("\nDigite o segundo jogador: ")
+            jogador2 = servico_jogador.selecionar_jogador(nome2)
 
-        escolha = int(input("\nEscolha um jogador: ")) - 1
+            if jogador2 is None:
+                continue
 
-        if not (0 <= escolha < len(jogadores[:5])):
-            print("Escolha inválida.")
-            return None
+            resultado = comparador.comparar(jogador1, jogador2)
+            exibir_entidade(resultado)
 
-        jogador_api = jogadores[escolha]["player"]
+        elif opcao == "2":
 
-        player_id = jogador_api.get("id")
+            nome = input("\nDigite o nome do jogador: ")
 
-        dados_estatisticas = Estatisticas.calcular(
-            api,
-            player_id
-        )
+            jogador = servico_jogador.selecionar_jogador(nome)
 
-        return Jogador(
-            nome=jogador_api.get("name", "Desconhecido"),
-            nacionalidade=jogador_api.get("nationality", "Desconhecida"),
-            posicao=jogador_api.get("position", "Sem posição"),
-            idade=jogador_api.get("age"),
-            altura=jogador_api.get("height"),
-            peso=jogador_api.get("weight"),
-            jogos=dados_estatisticas["jogos"],
-            gols=dados_estatisticas["gols"],
-            assistencias=dados_estatisticas["assistencias"],
-            minutos=dados_estatisticas["minutos"],
-            nota_media=dados_estatisticas["nota_media"]
-        )
+            if jogador:
+                exibir_entidade(jogador)
 
-    except ValueError:
+        elif opcao == "3":
 
-        print("Digite um número válido.")
-        return None
+            print("Saindo do sistema...")
+            break
 
-while True:
+        else:
 
-    mostrar_menu()
+            print("Opção inválida.")
 
-    opcao = input("Escolha uma opção: ")
 
-    if opcao == "1":
-
-        print("\n===== COMPARAR JOGADORES =====")
-
-        nome1 = input("\nDigite o primeiro jogador: ")
-        jogador1 = selecionar_jogador(nome1)
-
-        if jogador1 is None:
-            continue
-
-        nome2 = input("\nDigite o segundo jogador: ")
-        jogador2 = selecionar_jogador(nome2)
-
-        if jogador2 is None:
-            continue
-
-        Comparador.comparar(jogador1, jogador2)
-
-    elif opcao == "2":
-
-        nome = input("\nDigite o nome do jogador: ")
-
-        jogador = selecionar_jogador(nome)
-
-        if jogador:
-            jogador.mostrar_dados()
-
-    elif opcao == "3":
-
-        print("Saindo do sistema...")
-        break
-
-    else:
-
-        print("Opção inválida.")
+if __name__ == "__main__":
+    main()

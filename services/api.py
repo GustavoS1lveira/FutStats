@@ -9,11 +9,15 @@ class APIFootball:
 
     def __init__(self):
 
-        self.api_key = os.getenv("API_FOOTBALL_KEY")
+        self._api_key = os.getenv("API_FOOTBALL_KEY")
 
-        self.headers = {
-            "x-apisports-key": self.api_key
+        self._headers = {
+            "x-apisports-key": self._api_key
         }
+
+    @property
+    def headers(self):
+        return self._headers
 
     def buscar_jogador(self, nome_jogador):
 

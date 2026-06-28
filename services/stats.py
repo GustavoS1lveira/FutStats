@@ -1,9 +1,11 @@
 class Estatisticas:
 
-    @staticmethod
-    def calcular(api, player_id):
+    def __init__(self, api):
+        self._api = api
 
-        temporadas = api.buscar_temporadas_jogador(player_id)
+    def calcular(self, player_id):
+
+        temporadas = self._api.buscar_temporadas_jogador(player_id)
 
         jogos = 0
         gols = 0
@@ -22,7 +24,7 @@ class Estatisticas:
 
             try:
 
-                estatisticas = api.buscar_estatisticas(
+                estatisticas = self._api.buscar_estatisticas(
                     player_id,
                     temporada
                 )

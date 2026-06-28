@@ -21,16 +21,59 @@ class Jogador(Pessoa, Entidade):
 
         super().__init__(nome, nacionalidade)
 
-        self.posicao = posicao
-        self.idade = idade
-        self.altura = altura
-        self.peso = peso
+        self._posicao = posicao
+        self._idade = idade
+        self._altura = altura
+        self._peso = peso
 
-        self.jogos = jogos
-        self.gols = gols
-        self.assistencias = assistencias
-        self.minutos = minutos
-        self.nota_media = nota_media
+        self._jogos = self._valor_positivo(jogos)
+        self._gols = self._valor_positivo(gols)
+        self._assistencias = self._valor_positivo(assistencias)
+        self._minutos = self._valor_positivo(minutos)
+        self._nota_media = self._valor_positivo(nota_media)
+
+    @staticmethod
+    def _valor_positivo(valor):
+        if valor is None:
+            return 0
+
+        return max(valor, 0)
+
+    @property
+    def posicao(self):
+        return self._posicao
+
+    @property
+    def idade(self):
+        return self._idade
+
+    @property
+    def altura(self):
+        return self._altura
+
+    @property
+    def peso(self):
+        return self._peso
+
+    @property
+    def jogos(self):
+        return self._jogos
+
+    @property
+    def gols(self):
+        return self._gols
+
+    @property
+    def assistencias(self):
+        return self._assistencias
+
+    @property
+    def minutos(self):
+        return self._minutos
+
+    @property
+    def nota_media(self):
+        return self._nota_media
 
     def mostrar_dados(self):
 

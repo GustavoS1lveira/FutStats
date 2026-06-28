@@ -1,6 +1,6 @@
-class Entidade:
+from abc import ABC, abstractmethod
+class Entidade(ABC):
 
+    @abstractmethod
     def mostrar_dados(self):
-        raise NotImplementedError(
-            "As subclasses devem implementar mostrar_dados()"
-        )
+        pass
